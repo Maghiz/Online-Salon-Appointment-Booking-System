@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - LuxeSalon</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;500;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body>
+    <nav class="navbar glass">
+        <div class="nav-container">
+            <a href="../index.html" class="logo">
+                <span class="logo-icon">&#10024;</span> LuxeSalon
+            </a>
+            <div class="nav-links">
+                <a href="../index.html">Home</a>
+                <a href="services.html">Services</a>
+                <a href="register.html" class="btn-outline">Sign Up</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="auth-container"
+        style="background: radial-gradient(circle at 50% 10%, rgba(201, 164, 115, 0.15) 0%, var(--bg-base) 60%);">
+        <div class="auth-card glass-card fade-in-up">
+            <h2>Welcome Back</h2>
+            <form id="loginForm" autocomplete="off">
+                <div class="form-group">
+                    <label for="user_email">Email Address</label>
+                    <input type="email" id="user_email" class="form-control" placeholder="Email" autocomplete="off" required>
+                </div>
+                <div class="form-group">
+                    <label for="user_pass">Password</label>
+                    <input type="password" id="user_pass" class="form-control" placeholder="Password" autocomplete="new-password"
+                        required>
+                </div>
+                <!-- Mock login functionality handled by JS -->
+                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">Sign In</button>
+            </form>
+            <div style="text-align: center; margin-top: 1.5rem; color: var(--text-secondary); font-size: 0.9rem;">
+                Don't have an account? <a href="register.html" class="btn-text">Register here</a>
+                <br><br>
+                <a href="admin.html" class="btn-text" style="color: var(--text-muted); font-size: 0.8rem;">Admin
+                    Login</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS to connect to backend -->
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const email = document.getElementById('user_email').value;
+            const password = document.getElementById('user_pass').value;
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    if (data.role === 'admin') {
+                        window.location.href = 'admin.html';
+                    } else {
+                        window.location.href = 'dashboard.html';
+                    }
+                } else {
+                    alert(data.message || 'Login failed');
+                }
+            } catch (error) {
+                alert('Connection to server failed. Please make sure the backend is running.');
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Appointment - LuxeSalon</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <nav class="navbar glass">
+        <div class="nav-container">
+            <a href="../index.html" class="logo">
+                <span class="logo-icon">&#10024;</span> LuxeSalon
+            </a>
+            <div class="nav-links">
+                <a href="../index.html">Home</a>
+                <a href="services.html">Services</a>
+                <a href="dashboard.html" class="btn-outline">My Account</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="auth-container" style="background: radial-gradient(circle at 80% 90%, rgba(201, 164, 115, 0.1) 0%, var(--bg-base) 60%); padding-top: calc(var(--nav-height) + 2rem);">
+        <div class="auth-card glass-card fade-in-up" style="max-width: 600px;">
+            <h2 style="text-align: left; margin-bottom: 0.5rem;">Reserve Your Spot</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem;">Select your desired service, date, and time.</p>
+            
+            <form id="bookingForm">
+                <div class="form-group">
+                    <label>Select Services</label>
+                    <div id="serviceGrid" class="services-grid" style="grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.5rem;">
+                        <!-- Dynamically populated -->
+                        <div style="grid-column: span 2; text-align: center; padding: 2rem; color: var(--text-muted);">Loading services...</div>
+                    </div>
+                </div>
+
+                <!-- Booking Summary -->
+                <div id="bookingSummary" class="glass-card" style="margin: 1.5rem 0; padding: 1rem; background: rgba(201, 164, 115, 0.05); display: none;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span>Selected Services:</span>
+                        <span id="selectedCount" style="font-weight: 600;">0</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: 800; color: var(--primary);">
+                        <span>Total Price:</span>
+                        <span id="totalPrice">₹0.00</span>
+                    </div>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                        Est. Duration: <span id="totalDuration">0</span> mins
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 1rem;">
+                    <div class="form-group" style="flex: 1;">
+                        <label for="date">Appointment Date</label>
+                        <input type="date" id="date" class="form-control" required>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label for="time">Time</label>
+                        <select id="time" class="form-control" required>
+                            <option value="">-- Time --</option>
+                            <option value="09:00">09:00 AM</option>
+                            <option value="10:00">10:00 AM</option>
+                            <option value="11:30">11:30 AM</option>
+                            <option value="13:00">01:00 PM</option>
+                            <option value="15:00">03:00 PM</option>
+                            <option value="17:00">05:00 PM</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="notes">Special Requests</label>
+                    <textarea id="notes" class="form-control" rows="2" placeholder="Any specific requirements..."></textarea>
+                </div>
+
+                <div id="aiHint" class="ai-suggestion" style="display: none;">
+                    <p style="font-size: 0.85rem; margin: 0;">✨ <strong>AI Hint:</strong> Morning slots on weekdays are usually less crowded!</p>
+                </div>
+
+                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">Confirm & Generate Token</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- JS for dynamic booking -->
+    <script>
+        let allServices = [];
+        let selectedServiceIds = new Set();
+
+        async function loadServices() {
+            try {
+                const res = await fetch('/api/services');
+                allServices = await res.json();
+                const grid = document.getElementById('serviceGrid');
+                grid.innerHTML = '';
+                
+                allServices.forEach(s => {
+                    const card = document.createElement('div');
+                    card.className = 'service-card glass-card hover-lift';
+                    card.style.padding = '1rem';
+                    card.style.cursor = 'pointer';
+                    card.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                            <span style="font-size: 1.5rem;">${s.icon || '✨'}</span>
+                            <input type="checkbox" data-id="${s.id}" style="transform: scale(1.2);">
+                        </div>
+                        <div style="margin-top: 0.5rem; font-weight: 600; font-size: 0.9rem;">${s.name}</div>
+                        <div style="color: var(--primary); font-size: 0.85rem;">₹${s.price}</div>
+                    `;
+                    card.onclick = (e) => {
+                        if (e.target.tagName !== 'INPUT') {
+                            const cb = card.querySelector('input');
+                            cb.checked = !cb.checked;
+                            toggleService(s.id, cb.checked);
+                        } else {
+                            toggleService(s.id, e.target.checked);
+                        }
+                        card.style.borderColor = card.querySelector('input').checked ? 'var(--primary)' : 'var(--border-light)';
+                    };
+                    grid.appendChild(card);
+                });
+            } catch (err) {
+                console.error(err);
+                const grid = document.getElementById('serviceGrid');
+                grid.innerHTML = `<div style="grid-column: span 2; text-align: center; padding: 2rem; color: var(--text-muted);">
+                    <p>Failed to load services. Please check your connection or try again later.</p>
+                    <button class="btn-outline" onclick="loadServices()" style="margin-top: 1rem;">Retry</button>
+                </div>`;
+            }
+        }
+
+        function toggleService(id, checked) {
+            if (checked) selectedServiceIds.add(id);
+            else selectedServiceIds.delete(id);
+            updateSummary();
+        }
+
+        function updateSummary() {
+            const summary = document.getElementById('bookingSummary');
+            if (selectedServiceIds.size > 0) {
+                summary.style.display = 'block';
+                document.getElementById('aiHint').style.display = 'block';
+                
+                const selected = allServices.filter(s => selectedServiceIds.has(s.id));
+                const total = selected.reduce((sum, s) => sum + s.price, 0);
+                const duration = selected.reduce((sum, s) => sum + s.duration, 0);
+                
+                document.getElementById('selectedCount').textContent = selected.length;
+                document.getElementById('totalPrice').textContent = `₹${total.toFixed(2)}`;
+                document.getElementById('totalDuration').textContent = duration;
+            } else {
+                summary.style.display = 'none';
+                document.getElementById('aiHint').style.display = 'none';
+            }
+        }
+
+        document.getElementById('bookingForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            if (selectedServiceIds.size === 0) {
+                alert('Please select at least one service.');
+                return;
+            }
+
+            const payload = {
+                serviceIds: Array.from(selectedServiceIds),
+                date: document.getElementById('date').value,
+                time: document.getElementById('time').value,
+                notes: document.getElementById('notes').value
+            };
+
+            try {
+                const response = await fetch('/api/bookings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await response.json();
+                if (data.status === 'success') {
+                    // Show success modal or redirect
+                    window.location.href = `dashboard.html?token=${data.token}&wait=${data.waitTime}`;
+                } else {
+                    alert(data.message || 'Booking failed');
+                }
+            } catch (error) {
+                alert('Connection failed');
+            }
+        });
+
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            loadServices();
+            const dateInput = document.getElementById('date');
+            const today = new Date().toISOString().split('T')[0];
+            dateInput.min = today;
+        });
+    </script>
+</body>
+</html>

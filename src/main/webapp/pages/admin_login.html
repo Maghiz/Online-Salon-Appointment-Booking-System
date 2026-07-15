@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal Login - LuxeSalon</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        body {
+            background: #0a0a0c;
+        }
+        .admin-login-wrapper {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at 10% 20%, rgba(201, 164, 115, 0.1) 0%, transparent 40%),
+                        radial-gradient(circle at 90% 80%, rgba(201, 164, 115, 0.05) 0%, transparent 40%);
+        }
+        .admin-login-card {
+            width: 100%;
+            max-width: 420px;
+            padding: 3rem;
+            border: 1px solid rgba(201, 164, 115, 0.2);
+            border-top: 4px solid var(--primary);
+        }
+        .admin-badge {
+            display: inline-block;
+            padding: 0.4rem 1rem;
+            background: rgba(201, 164, 115, 0.1);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-login-wrapper">
+        <div class="admin-login-card glass-card fade-in-up">
+            <div style="text-align: center;">
+                <div class="admin-badge">Staff Gateway</div>
+                <h2 style="margin-bottom: 0.5rem;">Admin Authentication</h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2.5rem;">Secure access for LuxeSalon management</p>
+            </div>
+
+            <form id="adminLoginForm" autocomplete="off">
+                <div class="form-group">
+                    <label for="admin_email">Authorized Email</label>
+                    <input type="email" id="admin_email" class="form-control" placeholder="staff@luxesalon.com" required>
+                </div>
+                <div class="form-group" style="margin-top: 1.5rem;">
+                    <label for="admin_pass">Security Key</label>
+                    <input type="password" id="admin_pass" class="form-control" placeholder="••••••••" required>
+                </div>
+                
+                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 2.5rem; height: 3.5rem; font-weight: 700;">
+                    Access Dashboard
+                </button>
+            </form>
+            
+            <div style="text-align: center; margin-top: 2rem;">
+                <a href="../index.html" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none;">&larr; Return to Main Site</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('admin_email').value;
+            const password = document.getElementById('admin_pass').value;
+
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+
+                if (data.status === 'success' && data.role === 'admin') {
+                    window.location.href = 'admin.html';
+                } else if (data.role !== 'admin') {
+                    alert('Access Denied: This portal is for administrators only.');
+                } else {
+                    alert(data.message || 'Authentication failed');
+                }
+            } catch (err) {
+                alert('Connection error');
+            }
+        });
+    </script>
+</body>
+</html>

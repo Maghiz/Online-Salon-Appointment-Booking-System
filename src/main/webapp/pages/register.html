@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - LuxeSalon</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <nav class="navbar glass">
+        <div class="nav-container">
+            <a href="../index.html" class="logo">
+                <span class="logo-icon">&#10024;</span> LuxeSalon
+            </a>
+            <div class="nav-links">
+                <a href="../index.html">Home</a>
+                <a href="services.html">Services</a>
+                <a href="login.html" class="btn-outline">Sign In</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="auth-container" style="background: radial-gradient(circle at 10% 50%, rgba(201, 164, 115, 0.1) 0%, var(--bg-base) 60%);">
+        <div class="auth-card glass-card fade-in-up">
+            <h2>Create Account</h2>
+            <form id="registerForm" autocomplete="off">
+                <div class="form-group">
+                    <label for="reg_name">Full Name</label>
+                    <input type="text" id="reg_name" class="form-control" placeholder="Name" required>
+                </div>
+                <div class="form-group">
+                    <label for="reg_email">Email Address</label>
+                    <input type="email" id="reg_email" class="form-control" placeholder="Email Address" required>
+                </div>
+                <div class="form-group">
+                    <label for="reg_phone">Phone Number</label>
+                    <input type="tel" id="reg_phone" class="form-control" placeholder="Phone Number" required>
+                </div>
+                <div class="form-group">
+                    <label for="reg_pass">Password</label>
+                    <input type="password" id="reg_pass" class="form-control" placeholder="Create a strong password" minlength="6" autocomplete="new-password" required>
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">Create Account</button>
+            </form>
+            <div style="text-align: center; margin-top: 1.5rem; color: var(--text-secondary); font-size: 0.9rem;">
+                Already have an account? <a href="login.html" class="btn-text">Sign In</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS to connect to backend -->
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const name = document.getElementById('reg_name').value;
+            const email = document.getElementById('reg_email').value;
+            const phone = document.getElementById('reg_phone').value;
+            const password = document.getElementById('reg_pass').value;
+            
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, phone, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    alert('Registration successful! Redirecting to login...');
+                    window.location.href = 'login.html';
+                } else {
+                    alert(data.message || 'Registration failed');
+                }
+            } catch (error) {
+                alert('Connection to server failed. Please make sure the backend is running.');
+            }
+        });
+    </script>
+</body>
+</html>

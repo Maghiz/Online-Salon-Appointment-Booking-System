@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salon - Premium Booking</title>
+    <!-- Google Fonts: Outfit & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <!-- Main Styles -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar glass">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <span class="logo-icon">&#10024;</span> LuxeSalon
+            </a>
+            <div class="nav-links">
+                <a href="index.html" class="active">Home</a>
+                <a href="pages/services.html">Services</a>
+                <a href="pages/booking.html" class="btn-outline">Book Now</a>
+                <button id="themeToggle" class="theme-toggle" title="Toggle Theme">
+                    <span id="themeIcon">🌙</span>
+                </button>
+                <a href="pages/login.html" id="authBtn" class="btn-primary">Sign In</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <div class="badge fade-in-up">Smart & Stylish</div>
+            <h1 class="fade-in-up delay-1">Luxe Salon<br><span>Digital Experience</span></h1>
+            <p class="fade-in-up delay-2">Premium beauty services with real-time queue tracking. Skip the wait and book your signature look today.</p>
+            
+            <!-- Live Queue Mini Widget -->
+            <div class="queue-card-mini fade-in-up delay-3">
+                <div class="now-serving">
+                    <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.3rem;">Now Serving</div>
+                    <div id="servingToken" class="now-serving-badge">NONE</div>
+                </div>
+                <div class="wait-info">
+                    <div class="wait-time-mini">Estimated Wait: <span id="estWait">-- mins</span></div>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary);">Current Queue: <span id="queueCount">0</span> people</div>
+                </div>
+            </div>
+
+            <div class="hero-actions fade-in-up delay-3" style="margin-top: 2.5rem;">
+                <a href="pages/booking.html" class="btn-primary large">Book Appointment</a>
+                <a href="pages/services.html" class="btn-outline large">Explore Services</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Live Queue Section -->
+    <section class="live-queue-section">
+        <div class="div-container" style="max-width: 1000px; margin: 0 auto; padding: 4rem 2rem;">
+            <div class="section-header">
+                <div class="badge">Live Status</div>
+                <h2>Real-Time Queue</h2>
+                <p>Track your position and wait times in real-time.</p>
+            </div>
+            
+            <div class="live-indicator">
+                <span class="pulse-dot"></span>
+                Real-Time Updates
+            </div>
+            
+            <div id="nowServingAdvanced" class="now-serving-advanced">
+                <div class="serving-showcase glass-card">
+                    <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Currently Serving</div>
+                    <div id="servingTokenLarge" class="serving-token-large">NONE</div>
+                    <div id="servingGuestName" style="font-weight: 600; color: var(--text-secondary);">Waiting for guests...</div>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 2rem; font-family: var(--font-heading);">Stay Tuned: Upcoming Queue</h3>
+            <div id="liveQueueCards" class="queue-cards-container">
+                <div class="queue-placeholder">Our artists are ready for you. Book now to join the queue!</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Floating Chatbot -->
+    <div id="chatbot" class="chatbot-trigger" onclick="toggleChat()">
+        <span>💬</span>
+    </div>
+
+    <!-- Simple Chatbot Popup (Simulated) -->
+    <div id="chatWindow" class="glass-card" style="display: none; position: fixed; bottom: 6rem; right: 2rem; width: 300px; z-index: 1001; padding: 1.5rem;">
+        <h4 style="margin-bottom: 1rem; color: var(--primary);">Salon Assistant</h4>
+        <div id="chatContent" style="height: 200px; overflow-y: auto; font-size: 0.9rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-light);">
+            <p style="margin-bottom: 0.5rem;"><strong>AI:</strong> Hello! How can I help you today?</p>
+        </div>
+        <input type="text" id="chatInput" class="form-control" placeholder="Ask about services or wait time..." onkeypress="handleChat(event)">
+    </div>
+
+    <!-- AI Suggestion Bubble (Floating/Subtle) -->
+    <div id="aiSuggestion" class="glass-card fade-in-up" style="position: fixed; left: 2rem; bottom: 2rem; max-width: 250px; display: none; padding: 1rem; border-left: 4px solid var(--secondary);">
+        <div style="font-size: 0.75rem; font-weight: 800; color: var(--secondary); margin-bottom: 0.3rem;">AI SUGGESTION</div>
+        <p id="suggestionText" style="font-size: 0.85rem;"></p>
+    </div>
+
+    <!-- Services Teaser -->
+    <section class="services-teaser">
+        <div class="section-header">
+            <h2>Our Premium Services</h2>
+            <p>Masterful techniques for the现代 individual</p>
+        </div>
+        <div class="services-grid">
+            <div class="service-card glass-card hover-lift">
+                <div class="service-img-container">
+                    <img src="assets/images/haircut.png" alt="Precision Haircut">
+                </div>
+                <div class="service-card-content">
+                    <h3>Precision Haircut</h3>
+                    <p>Tailored techniques perfectly suited for your facial structure and style.</p>
+                    <div class="price">From ₹1500</div>
+                </div>
+            </div>
+            <div class="service-card glass-card hover-lift">
+                <div class="service-img-container">
+                    <img src="assets/images/facial.png" alt="Signature Facial">
+                </div>
+                <div class="service-card-content">
+                    <h3>Signature Facial</h3>
+                    <p>Revitalizing treatments using premium, organic products to restore the glow.</p>
+                    <div class="price">From ₹2500</div>
+                </div>
+            </div>
+            <div class="service-card glass-card hover-lift">
+                <div class="service-img-container">
+                    <img src="assets/images/nails.png" alt="Manicure & Pedicure">
+                </div>
+                <div class="service-card-content">
+                    <h3>Manicure & Pedicure</h3>
+                    <p>Complete nail care focused on health, aesthetics, and pure relaxation.</p>
+                    <div class="price">From ₹1200</div>
+                </div>
+            </div>
+        </div>
+        <div class="center-btn" style="margin-top: 3rem; text-align: center;">
+            <a href="pages/services.html" class="btn-text">View Full Menu &rarr;</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="brand">
+                <a href="index.html" class="logo">
+                    <span class="logo-icon">&#10024;</span> LuxeSalon
+                </a>
+                <p>Your sanctuary for ultimate beauty and relaxation.</p>
+            </div>
+            <div class="links">
+                <h4>Quick Links</h4>
+                <a href="pages/services.html">Services</a>
+                <a href="pages/booking.html">Book Appointment</a>
+                <a href="pages/login.html">Login</a>
+                <a href="pages/admin.html">Admin Portal</a>
+            </div>
+        </div>
+        <div class="copyright">
+            &copy; 2026 LuxeSalon. All rights reserved.
+        </div>
+    </footer>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

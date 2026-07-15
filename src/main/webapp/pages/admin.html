@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Management Suite - LuxeSalon</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        :root {
+            --sidebar-width: 280px;
+            --admin-accent: #c9a473;
+            --admin-bg: #0a0a0c;
+            --card-bg: rgba(255, 255, 255, 0.03);
+        }
+
+        body {
+            background: var(--admin-bg);
+            overflow: hidden;
+        }
+
+        .admin-layout {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Sidebar Glassmorphism */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: rgba(15, 15, 18, 0.8);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 2.5rem 0;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+        
+        .sidebar-header {
+            padding: 0 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .nav-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .nav-item {
+            padding: 1rem 2rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border-left: 3px solid transparent;
+        }
+        .nav-item i { font-size: 1.2rem; }
+        .nav-item:hover {
+            color: #fff;
+            background: rgba(201, 164, 115, 0.05);
+        }
+        .nav-item.active {
+            color: var(--admin-accent);
+            background: rgba(201, 164, 115, 0.08);
+            border-left-color: var(--admin-accent);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 2rem 4rem;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+        }
+
+        /* Summary Cards */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-bottom: 3.5rem;
+        }
+
+        .premium-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 2rem;
+            border-radius: 24px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+        .premium-card:hover { transform: translateY(-5px); }
+        .premium-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 4px; height: 100%;
+            background: var(--admin-accent);
+        }
+
+        .card-icon {
+            font-size: 1.5rem;
+            color: var(--admin-accent);
+            margin-bottom: 1rem;
+        }
+        .card-label { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+        .card-value { font-size: 2.5rem; font-weight: 800; font-family: var(--font-heading); margin: 0.5rem 0; color: #fff; }
+
+        /* Modern Table */
+        .table-container {
+            background: var(--card-bg);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 0.8rem;
+        }
+        th {
+            text-align: left;
+            padding: 1rem;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        td {
+            padding: 1.2rem 1rem;
+            background: rgba(255,255,255,0.01);
+            transition: background 0.2s ease;
+        }
+        tr:hover td { background: rgba(255,255,255,0.03); }
+        td:first-child { border-radius: 12px 0 0 12px; }
+        td:last-child { border-radius: 0 12px 12px 0; }
+
+        .token-badge {
+            background: rgba(201, 164, 115, 0.1);
+            color: var(--admin-accent);
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            font-weight: 700;
+            border: 1px solid rgba(201, 164, 115, 0.2);
+        }
+
+        .status-pill {
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .pill-serving { background: rgba(52, 211, 153, 0.1); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.2); }
+        .pill-waiting { background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.2); }
+
+        .btn-action {
+            padding: 0.5rem 1.2rem;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+        .btn-serve { background: var(--admin-accent); color: #000; }
+        .btn-complete { background: transparent; border-color: #34d399; color: #34d399; }
+        .btn-action:hover { opacity: 0.8; transform: translateY(-2px); }
+
+        /* Analytics View Improvements */
+        .chart-box {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,0.05);
+            height: 400px;
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="admin-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="../index.html" class="logo" style="text-decoration: none;">
+                    <span class="logo-icon">&#10024;</span> 
+                    <span style="font-family: 'Outfit'; font-weight: 800; color: #fff; letter-spacing: 1px;">LuxeSuite</span>
+                </a>
+                <div style="font-size: 0.65rem; color: var(--admin-accent); text-transform: uppercase; letter-spacing: 2px; margin-top: 0.5rem;">Management Suite</div>
+            </div>
+            
+            <nav class="nav-group">
+                <div class="nav-item active" onclick="switchView('overview')"><i>📊</i> Dashboard</div>
+                <div class="nav-item" onclick="switchView('allBookingsView')"><i>🗓️</i> Appointments</div>
+                <div class="nav-item" onclick="switchView('usersView')"><i>👥</i> Customers</div>
+                <div class="nav-item" onclick="switchView('analytics')"><i>📈</i> Analytics</div>
+                <div class="nav-item" onclick="switchView('services')"><i>✂️</i> Services</div>
+            </nav>
+            
+            <div style="flex: 1;"></div>
+            <div class="nav-item" style="color: #ef4444; border-top: 1px solid rgba(255,255,255,0.05);" onclick="logout()"><i>🚪</i> Sign Out</div>
+        </aside>
+
+        <main class="main-content">
+            <header class="dashboard-header">
+                <div>
+                    <h1 id="pageTitle" style="font-family: var(--font-heading); font-size: 1.8rem;">Dashboard Overview</h1>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Real-time salon operations & tracking</p>
+                </div>
+                <div id="liveIndicator" class="live-indicator">
+                    <span class="pulse-dot"></span> System Live
+                </div>
+            </header>
+
+            <!-- Dashboard Overview -->
+            <div id="overview" class="view-panel">
+                <div class="analytics-grid">
+                    <div class="premium-card">
+                        <div class="card-icon">⌛</div>
+                        <div class="card-label">Queue Waiting</div>
+                        <div id="statWaiting" class="card-value">0</div>
+                    </div>
+                    <div class="premium-card" style="border-left-color: #34d399;">
+                        <div class="card-icon" style="color: #34d399;">💎</div>
+                        <div class="card-label">Total Today</div>
+                        <div id="statTotal" class="card-value">0</div>
+                    </div>
+                    <div class="premium-card" style="border-left-color: #f87171;">
+                        <div class="card-icon" style="color: #f87171;">✅</div>
+                        <div class="card-label">Resolved</div>
+                        <div id="statCompleted" class="card-value">0</div>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h3 style="font-family: var(--font-heading);">Current Queue Flow</h3>
+                    <div id="adminServing" style="font-size: 0.8rem; font-weight: 700; color: var(--admin-accent); background: rgba(201,164,115,0.1); padding: 0.4rem 1rem; border-radius: 8px;">Active: NONE</div>
+                </div>
+
+                <div class="table-container fade-in-up">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Token</th>
+                                <th>Guest Identity</th>
+                                <th>Requested Services</th>
+                                <th>Status</th>
+                                <th>Execution</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminQueueTable">
+                            <tr><td colspan="5" style="text-align: center; padding: 4rem; color: var(--text-muted);">Initializing high-speed data stream...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- All Bookings View -->
+            <div id="allBookingsView" class="view-panel" style="display: none;">
+                <h3 style="margin-bottom: 2rem;">Full Appointment Registry</h3>
+                <div class="table-container fade-in-up">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Token</th>
+                                <th>Customer</th>
+                                <th>Services</th>
+                                <th>Schedule</th>
+                                <th>Outcome</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminAllBookingsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Customers View -->
+            <div id="usersView" class="view-panel" style="display: none;">
+                <h3 style="margin-bottom: 2rem;">Valued Customers</h3>
+                <div class="table-container fade-in-up">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Profile Name</th>
+                                <th>Email Address</th>
+                                <th>Mobile Contact</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminUsersTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Analytics View -->
+            <div id="analytics" class="view-panel" style="display: none;">
+                <h3 style="margin-bottom: 2rem;">Market Insights</h3>
+                <div class="chart-box">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+                <div class="analytics-grid" style="margin-top: 2rem;">
+                    <div class="premium-card">
+                        <div class="card-label">Busiest Period</div>
+                        <div class="card-value" style="font-size: 1.5rem;">4:00 PM - 7:00 PM</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="services" class="view-panel" style="display: none;">
+                <h3>Service Portfolio</h3>
+                <p style="color: var(--text-muted);">Manage your salon's professional offerings</p>
+                <!-- Existing service list can go here -->
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let revenueChart;
+
+        async function fetchAdminData() {
+            try {
+                const res = await fetch('/api/admin');
+                const data = await res.json();
+                
+                if (data.status === 'error') {
+                    window.location.href = 'admin_login.html';
+                    return;
+                }
+
+                // Update Stats
+                document.getElementById('statWaiting').textContent = data.waitingCount;
+                document.getElementById('statTotal').textContent = data.totalBookings;
+                document.getElementById('statCompleted').textContent = data.completedCount;
+                document.getElementById('adminServing').textContent = `ACTIVE: ${data.nowServing || 'NONE'}`;
+                
+                // Update Main Queue
+                const tbody = document.getElementById('adminQueueTable');
+                tbody.innerHTML = '';
+                data.queue.forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><span class="token-badge">${item.token}</span></td>
+                        <td>
+                            <div style="font-weight: 600;">${item.userName}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); font-style: italic;">${item.notes || 'No special requests'}</div>
+                        </td>
+                        <td style="font-size: 0.85rem; color: var(--admin-accent); font-weight: 500;">${item.services}</td>
+                        <td><span class="status-pill ${item.status === 'serving' ? 'pill-serving' : 'pill-waiting'}">${item.status}</span></td>
+                        <td>
+                            ${item.status === 'waiting' 
+                                ? `<button class="btn-action btn-serve" onclick="updateStatus('${item.token}', 'serve')">START SESSION</button>`
+                                : `<button class="btn-action btn-complete" onclick="updateStatus('${item.token}', 'complete')">MARK DONE</button>`
+                            }
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+                // Update All Bookings
+                const tbodyAll = document.getElementById('adminAllBookingsTable');
+                if (tbodyAll && data.allBookings) {
+                    tbodyAll.innerHTML = '';
+                    data.allBookings.forEach(item => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td><span class="token-badge" style="opacity: 0.7;">${item.token}</span></td>
+                            <td style="font-weight: 600;">${item.userName}</td>
+                            <td style="font-size: 0.85rem;">${item.services}</td>
+                            <td style="font-size: 0.85rem; color: var(--text-muted);">${item.date || ''} | ${item.time || ''}</td>
+                            <td><span class="status-pill ${item.status === 'completed' ? 'pill-serving' : 'pill-waiting'}" style="font-size: 0.65rem;">${item.status}</span></td>
+                        `;
+                        tbodyAll.appendChild(tr);
+                    });
+                }
+
+                // Update Users
+                const tbodyUsers = document.getElementById('adminUsersTable');
+                if (tbodyUsers && data.users) {
+                    tbodyUsers.innerHTML = '';
+                    data.users.forEach(user => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td style="font-weight: 600;">${user.name}</td>
+                            <td style="color: var(--text-muted);">${user.email}</td>
+                            <td>${user.phone}</td>
+                        `;
+                        tbodyUsers.appendChild(tr);
+                    });
+                }
+
+                if (!revenueChart) initChart();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function updateStatus(token, action) {
+            try {
+                const res = await fetch('/api/admin', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ token, action })
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    fetchAdminData();
+                } else {
+                    alert(data.message);
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function initChart() {
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            revenueChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Revenue Trend',
+                        data: [12000, 15000, 13000, 18000, 14000, 22000, 28000],
+                        borderColor: '#c9a473',
+                        backgroundColor: 'rgba(201, 164, 115, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 3,
+                        pointBackgroundColor: '#c9a473'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { 
+                        y: { ticks: { color: '#6b7280' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                        x: { ticks: { color: '#6b7280' }, grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        function switchView(viewId) {
+            document.querySelectorAll('.view-panel').forEach(p => p.style.display = 'none');
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+            document.getElementById(viewId).style.display = 'block';
+            event.currentTarget.classList.add('active');
+            
+            // Update Title
+            const titles = {
+                'overview': 'Dashboard Overview',
+                'allBookingsView': 'Appointment Registry',
+                'usersView': 'Customer Database',
+                'analytics': 'Business Intelligence',
+                'services': 'Service Portfolio'
+            };
+            document.getElementById('pageTitle').textContent = titles[viewId];
+        }
+
+        function logout() {
+            fetch('/api/logout').finally(() => { window.location.href = '../index.html'; });
+        }
+
+        setInterval(fetchAdminData, 10000); // 10s refresh
+        fetchAdminData();
+    </script>
+</body>
+</html>
